@@ -21,7 +21,7 @@ namespace ShaderPlayer
 
 			var io = ImGui.GetIO();
 			io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
-
+			io.ConfigWindowsResizeFromEdges = true;
 			var fonts = io.Fonts;
 			//fonts.ClearFonts();
 			//var config = new ImFontConfig
@@ -55,6 +55,11 @@ namespace ShaderPlayer
 
 		public Viewport Viewport { get; private set; }
 
+		internal void ShowErrorInfo(string message)
+		{
+			errorMessage = message;
+		}
+
 		private readonly ImFontPtr font;
 		private readonly Sdl2Window window;
 		private readonly GraphicsDevice graphicsDevice;
@@ -69,6 +74,7 @@ namespace ShaderPlayer
 		private bool showDashboardWindow = false;
 		private bool showDemoWindow = false;
 		private bool showStatsWindow = true;
+		private string errorMessage;
 
 		private void MenuItemFromCommand(UiCommand command)
 		{
@@ -97,12 +103,18 @@ namespace ShaderPlayer
 						MenuItemFromCommand(cmdToggleStats);
 						MenuItemFromCommand(cmdClose);
 
-						//ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
+						ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
 						ImGui.EndMenu();
 					}
 					var clientStart = ImGui.GetWindowHeight();
 					Viewport = new Viewport(0f, clientStart, window.Width, window.Height - clientStart, 0f, 1f);
 					ImGui.EndMainMenuBar();
+				}
+				if(!string.IsNullOrEmpty(errorMessage))
+				{
+					ImGui.Begin("Shader Log");
+					ImGui.TextWrapped(errorMessage);
+					ImGui.End();
 				}
 				if(showDashboardWindow && ImGui.Begin("Dashboard", ref showDashboardWindow))
 				{

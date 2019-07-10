@@ -14,11 +14,10 @@ namespace ShaderPlayer
 
 		static void Main(string[] args)
 		{
-			try
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 			{
 				SetProcessDPIAware(); // no DPI scaling with blurry fonts
 			}
-			catch { };
 			var window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
 			var options = new GraphicsDeviceOptions() { PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true };
 			var graphicsDevice = VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, window, GraphicsBackend.OpenGL);
@@ -54,16 +53,20 @@ namespace ShaderPlayer
 
 			window.DragDrop += (dropEvent) =>
 			{
-				try
-				{
-					fileChangeSubscription?.Dispose();
-					fileChangeSubscription = TrackedFile.Load(dropEvent.File,
-						fileName => shaderQuad.Load(ShaderFileTools.ShaderFileToSourceCode(fileName, graphicsDevice.ResourceFactory)));
-				}
-				catch
-				{
-
-				}
+				fileChangeSubscription?.Dispose();
+				fileChangeSubscription = TrackedFile.Load(dropEvent.File).Subscribe(
+					fileName =>
+					{
+						myGui.ShowErrorInfo(string.Empty);
+						try
+						{
+							shaderQuad.Load(ShaderFileTools.ShaderFileToSourceCode(fileName, graphicsDevice.ResourceFactory));
+						}
+						catch (VeldridException vex)
+						{
+							myGui.ShowErrorInfo(vex.Message);
+						}
+					});
 			};
 
 			var stopwatch = Stopwatch.StartNew();

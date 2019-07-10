@@ -58,24 +58,31 @@ namespace ShaderPlayer
 
 		public void Load(string fragmentShaderSourceCode)
 		{
-			var shaders = LoadShader(graphicsDevice.ResourceFactory, fragmentShaderSourceCode);
-			var pipelineDesc = new GraphicsPipelineDescription()
+			//try
 			{
-				BlendState = BlendStateDescription.SingleDisabled,
-				DepthStencilState = DepthStencilStateDescription.Disabled,
-				RasterizerState = RasterizerStateDescription.CullNone,
-				PrimitiveTopology = PrimitiveTopology.TriangleStrip,
-				ResourceLayouts = new ResourceLayout[] { resourceLayout },
-				ShaderSet = new ShaderSetDescription()
+				var shaders = LoadShader(graphicsDevice.ResourceFactory, fragmentShaderSourceCode);
+				var pipelineDesc = new GraphicsPipelineDescription()
 				{
-					VertexLayouts = new VertexLayoutDescription[] { },
-					Shaders = shaders
-				},
-				Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription
-			};
-			var oldPipeline = pipeline;
-			pipeline = graphicsDevice.ResourceFactory.CreateGraphicsPipeline(pipelineDesc);
-			disposePipeline = oldPipeline;
+					BlendState = BlendStateDescription.SingleDisabled,
+					DepthStencilState = DepthStencilStateDescription.Disabled,
+					RasterizerState = RasterizerStateDescription.CullNone,
+					PrimitiveTopology = PrimitiveTopology.TriangleStrip,
+					ResourceLayouts = new ResourceLayout[] { resourceLayout },
+					ShaderSet = new ShaderSetDescription()
+					{
+						VertexLayouts = new VertexLayoutDescription[] { },
+						Shaders = shaders
+					},
+					Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription
+				};
+				var oldPipeline = pipeline;
+				pipeline = graphicsDevice.ResourceFactory.CreateGraphicsPipeline(pipelineDesc);
+				disposePipeline = oldPipeline;
+			}
+			//catch(VeldridException e)
+			//{
+			
+			//}
 		}
 
 		internal void Update(Uniforms uniforms)

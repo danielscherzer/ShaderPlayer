@@ -22,8 +22,8 @@
 
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="4.1.5" />
-    <PackageReference Include="Veldrid" Version="4.6.1" />
-    <PackageReference Include="Veldrid.ImGui" Version="5.69.0" />
+    <PackageReference Include="Veldrid" Version="4.7.0-g4d09d452ed" />
+    <PackageReference Include="Veldrid.ImGui" Version="5.70.0-ge32775f6a5" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.9" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.6.1" />
   </ItemGroup>
