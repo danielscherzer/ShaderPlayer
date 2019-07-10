@@ -17,7 +17,8 @@ namespace ShaderPlayer
 			try
 			{
 				SetProcessDPIAware(); // no DPI scaling with blurry fonts
-			} catch { };
+			}
+			catch { };
 			var window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
 			var options = new GraphicsDeviceOptions() { PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true };
 			var graphicsDevice = VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, window, GraphicsBackend.OpenGL);
@@ -48,14 +49,21 @@ namespace ShaderPlayer
 			var shaderQuad = new PrimitiveShaderQuad(graphicsDevice, fragmentShaderSourceCode);
 
 			IDisposable fileChangeSubscription = null;
-			//fileChangeSubscription = TrackedFile.Load(@"D:\Daten\git\SHADER\2D\PatternCircle - Kopie.glsl", source => shaderQuad.Load(source));
 
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
 			window.DragDrop += (dropEvent) =>
 			{
-				fileChangeSubscription?.Dispose();
-				fileChangeSubscription = TrackedFile.Load(dropEvent.File, source => shaderQuad.Load(source));
+				try
+				{
+					fileChangeSubscription?.Dispose();
+					fileChangeSubscription = TrackedFile.Load(dropEvent.File,
+						fileName => shaderQuad.Load(ShaderFileTools.ShaderFileToSourceCode(fileName, graphicsDevice.ResourceFactory)));
+				}
+				catch
+				{
+
+				}
 			};
 
 			var stopwatch = Stopwatch.StartNew();
@@ -66,7 +74,7 @@ namespace ShaderPlayer
 				var deltaTime = time - lastTime;
 				lastTime = time;
 
-				var viewport = myGui.Viewport; 
+				var viewport = myGui.Viewport;
 				Uniforms uniforms = new Uniforms { time = time, resolution = new Vector2(viewport.Width, viewport.Height) };
 				shaderQuad.Update(uniforms);
 
@@ -82,12 +90,11 @@ namespace ShaderPlayer
 				commandList.End();
 				graphicsDevice.SubmitCommands(commandList);
 				graphicsDevice.SwapBuffers();
-
 				InputSnapshot snapshot = window.PumpEvents();
 				myGui.Update(deltaTime, snapshot); // Feed the input events to the ui
 			}
 
-			fileChangeSubscription.Dispose();
+			fileChangeSubscription?.Dispose();
 			graphicsDevice.WaitForIdle();
 			myGui.Dispose();
 			shaderQuad.Dispose();

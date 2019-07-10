@@ -3,11 +3,11 @@ using Veldrid;
 
 namespace ShaderPlayer
 {
-	class Command
+	class UiCommand
 	{
 		private readonly Action action;
 
-		public Command(string caption, Action action, Key? key)
+		public UiCommand(string caption, Action action, Key? key)
 		{
 			Caption = caption;
 			this.action = action ?? throw new ArgumentNullException(nameof(action));

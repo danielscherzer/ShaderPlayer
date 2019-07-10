@@ -6,11 +6,15 @@ namespace ShaderPlayer
 {
 	internal class TrackedFile
 	{
-		internal static IDisposable Load(string fileName, Action<string> onSourceAvailable)
+		internal static IDisposable Load(string fileName, Action<string> onFileAvailable)
 		{
+			if (onFileAvailable is null)
+			{
+				throw new ArgumentNullException(nameof(onFileAvailable));
+			}
+
 			var seqFileChanged = CreateFileChangeSequence(fileName);
-			return seqFileChanged.Throttle(TimeSpan.FromSeconds(0.1f)).Delay(TimeSpan.FromSeconds(0.1f)).Select((newFileName) => File.ReadAllText(newFileName))
-				.Subscribe((shaderSource) => onSourceAvailable(shaderSource));
+			return seqFileChanged.Throttle(TimeSpan.FromSeconds(0.1f)).Delay(TimeSpan.FromSeconds(0.1f)).Subscribe(onFileAvailable);
 		}
 
 		private static IObservable<string> CreateFileChangeSequence(string fileName)

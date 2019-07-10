@@ -45,11 +45,9 @@ namespace ShaderPlayer
 			var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertexCode), "main");
 			var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragmentShaderSourceCode), "main");
 			//return resourceFactory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc);
-			return new Shader[]
-			{
-				resourceFactory.CreateShader(vertexShaderDesc),
-				resourceFactory.CreateShader(fragmentShaderDesc),
-			};
+			var vertexShader = resourceFactory.CreateShader(vertexShaderDesc);
+			var fragmentShader = resourceFactory.CreateShader(fragmentShaderDesc);
+			return new Shader[] { vertexShader, fragmentShader };
 		}
 
 		public void Dispose()
@@ -60,6 +58,7 @@ namespace ShaderPlayer
 
 		public void Load(string fragmentShaderSourceCode)
 		{
+			var shaders = LoadShader(graphicsDevice.ResourceFactory, fragmentShaderSourceCode);
 			var pipelineDesc = new GraphicsPipelineDescription()
 			{
 				BlendState = BlendStateDescription.SingleDisabled,
@@ -70,7 +69,7 @@ namespace ShaderPlayer
 				ShaderSet = new ShaderSetDescription()
 				{
 					VertexLayouts = new VertexLayoutDescription[] { },
-					Shaders = LoadShader(graphicsDevice.ResourceFactory, fragmentShaderSourceCode)
+					Shaders = shaders
 				},
 				Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription
 			};

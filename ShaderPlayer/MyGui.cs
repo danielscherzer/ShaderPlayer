@@ -46,11 +46,11 @@ namespace ShaderPlayer
 			Viewport = new Viewport(0f, 0f, window.Width, window.Height, 0f, 1f);
 			inputTracker = new InputTracker();
 
-			commands.Add(cmdToggleDashboard = new Command("Toggle Dashboard", () => showDashboardWindow = !showDashboardWindow, Key.D));
-			commands.Add(cmdToggleStats = new Command("Toggle Stats", () => showStatsWindow = !showStatsWindow, Key.S));
-			commands.Add(cmdToggleFullscreen = new Command("Toggle Fullscreen", () =>
+			commands.Add(cmdToggleDashboard = new UiCommand("Toggle Dashboard", () => showDashboardWindow = !showDashboardWindow, Key.D));
+			commands.Add(cmdToggleStats = new UiCommand("Toggle Stats", () => showStatsWindow = !showStatsWindow, Key.S));
+			commands.Add(cmdToggleFullscreen = new UiCommand("Toggle Fullscreen", () =>
 				window.WindowState = WindowState.BorderlessFullScreen == window.WindowState ? WindowState.Normal : WindowState.BorderlessFullScreen, Key.F11));
-			commands.Add(cmdClose = new Command("Close", window.Close, Key.Escape));
+			commands.Add(cmdClose = new UiCommand("Close", window.Close, Key.Escape));
 		}
 
 		public Viewport Viewport { get; private set; }
@@ -61,16 +61,16 @@ namespace ShaderPlayer
 		private ImGuiRenderer imGuiRenderer;
 		private InputTracker inputTracker;
 
-		private List<Command> commands = new List<Command>();
-		private readonly Command cmdToggleDashboard;
-		private readonly Command cmdToggleFullscreen;
-		private readonly Command cmdToggleStats;
-		private readonly Command cmdClose;
+		private List<UiCommand> commands = new List<UiCommand>();
+		private readonly UiCommand cmdToggleDashboard;
+		private readonly UiCommand cmdToggleFullscreen;
+		private readonly UiCommand cmdToggleStats;
+		private readonly UiCommand cmdClose;
 		private bool showDashboardWindow = false;
 		private bool showDemoWindow = false;
 		private bool showStatsWindow = true;
 
-		private void CommandMenu(Command command)
+		private void MenuItemFromCommand(UiCommand command)
 		{
 			if (ImGui.MenuItem(command.Caption, command.Key.ToString()))
 			{
@@ -92,10 +92,10 @@ namespace ShaderPlayer
 				{
 					if (ImGui.BeginMenu("Window"))
 					{
-						CommandMenu(cmdToggleDashboard);
-						CommandMenu(cmdToggleFullscreen);
-						CommandMenu(cmdToggleStats);
-						CommandMenu(cmdClose);
+						MenuItemFromCommand(cmdToggleDashboard);
+						MenuItemFromCommand(cmdToggleFullscreen);
+						MenuItemFromCommand(cmdToggleStats);
+						MenuItemFromCommand(cmdClose);
 
 						//ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
 						ImGui.EndMenu();
@@ -106,7 +106,7 @@ namespace ShaderPlayer
 				}
 				if(showDashboardWindow && ImGui.Begin("Dashboard", ref showDashboardWindow))
 				{
-					var io = ImGui.GetIO();
+					ImGuiIOPtr io = ImGui.GetIO();
 					ImGui.SliderFloat("Font scale", ref io.FontGlobalScale, 0.2f, 2f);
 					//ImGui.Text("Hello, world!");
 					//ImGui.ColorEdit4("color", ref color);
