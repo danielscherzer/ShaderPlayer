@@ -9,7 +9,7 @@ namespace ShaderPlayer
 		/// Searches for #include statements in the shader code and replaces them by the code in the include resource.
 		/// </summary>
 		/// <param name="shaderCode">The shader code.</param>
-		/// <param name="GetIncludeCode">Functor that will be called with the include path and that should return the shader code.</param>
+		/// <param name="GetIncludeCode">Functor that will be called with the include path as parameter and returns the include shader code.</param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentNullException">GetIncludeCode</exception>
 		public static string ExpandIncludes(string shaderCode, Func<string, string> GetIncludeCode)
@@ -33,6 +33,12 @@ namespace ShaderPlayer
 				++lineNr;
 			}
 			return shaderCode;
+		}
+
+		public static string ReplaceUniforms(string uncommentedShaderCode, Func<Match, string> matchEvaluator)
+		{
+			var pattern = @"uniform\s+([^\s]+)\s+([^\s]+)\s*;"; //matches uniform<spaces>type<spaces>name<spaces>; 
+			return Regex.Replace(uncommentedShaderCode, pattern, new MatchEvaluator(matchEvaluator));
 		}
 	}
 }
