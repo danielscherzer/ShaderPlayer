@@ -18,9 +18,10 @@ namespace ShaderPlayer
 			{
 				SetProcessDPIAware(); // no DPI scaling with blurry fonts
 			}
-			var window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
+			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
 			var options = new GraphicsDeviceOptions() { PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true };
 			var graphicsDevice = VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, window, GraphicsBackend.OpenGL);
+			//var graphicsDevice = VeldridStartup.CreateGraphicsDevice(window, options, GraphicsBackend.OpenGL);
 			//var graphicsDevice = VeldridStartup.CreateGraphicsDevice(window, options);
 			//var graphicsDevice = VeldridStartup.CreateVulkanGraphicsDevice(options, window);
 
@@ -28,16 +29,8 @@ namespace ShaderPlayer
 
 			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
 
-			const string fragmentShaderSourceCode = @"
-				#version 330
-
-				uniform uniforms
-				{
-					vec2 iResolution;
-					float iGlobalTime;
-				};
-				out vec4 fragColor;
-
+			string fragmentShaderSourceCode = "#version 330\n" + Uniforms.ShaderString + "\n" +
+				@"out vec4 fragColor;
 				//in vec2 uv;
 				void main()
 				{
@@ -48,8 +41,6 @@ namespace ShaderPlayer
 			var shaderQuad = new PrimitiveShaderQuad(graphicsDevice, fragmentShaderSourceCode);
 
 			IDisposable fileChangeSubscription = null;
-
-			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
 			window.DragDrop += (dropEvent) =>
 			{
@@ -69,6 +60,7 @@ namespace ShaderPlayer
 					});
 			};
 
+			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 			var stopwatch = Stopwatch.StartNew();
 			var lastTime = 0f;
 			while (window.Exists)
@@ -78,7 +70,7 @@ namespace ShaderPlayer
 				lastTime = time;
 
 				var viewport = myGui.Viewport;
-				Uniforms uniforms = new Uniforms { time = time, resolution = new Vector2(viewport.Width, viewport.Height) };
+				Uniforms uniforms = new Uniforms { /*mouse = new Vector4(), */time = time, resolution = new Vector2(viewport.Width, viewport.Height) };
 				shaderQuad.Update(uniforms);
 
 				commandList.Begin();

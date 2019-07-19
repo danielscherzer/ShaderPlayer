@@ -58,31 +58,24 @@ namespace ShaderPlayer
 
 		public void Load(string fragmentShaderSourceCode)
 		{
-			//try
+			var shaders = LoadShader(graphicsDevice.ResourceFactory, fragmentShaderSourceCode);
+			var pipelineDesc = new GraphicsPipelineDescription()
 			{
-				var shaders = LoadShader(graphicsDevice.ResourceFactory, fragmentShaderSourceCode);
-				var pipelineDesc = new GraphicsPipelineDescription()
+				BlendState = BlendStateDescription.SingleDisabled,
+				DepthStencilState = DepthStencilStateDescription.Disabled,
+				RasterizerState = RasterizerStateDescription.CullNone,
+				PrimitiveTopology = PrimitiveTopology.TriangleStrip,
+				ResourceLayouts = new ResourceLayout[] { resourceLayout },
+				ShaderSet = new ShaderSetDescription()
 				{
-					BlendState = BlendStateDescription.SingleDisabled,
-					DepthStencilState = DepthStencilStateDescription.Disabled,
-					RasterizerState = RasterizerStateDescription.CullNone,
-					PrimitiveTopology = PrimitiveTopology.TriangleStrip,
-					ResourceLayouts = new ResourceLayout[] { resourceLayout },
-					ShaderSet = new ShaderSetDescription()
-					{
-						VertexLayouts = new VertexLayoutDescription[] { },
-						Shaders = shaders
-					},
-					Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription
-				};
-				var oldPipeline = pipeline;
-				pipeline = graphicsDevice.ResourceFactory.CreateGraphicsPipeline(pipelineDesc);
-				disposePipeline = oldPipeline;
-			}
-			//catch(VeldridException e)
-			//{
-			
-			//}
+					VertexLayouts = new VertexLayoutDescription[] { },
+					Shaders = shaders
+				},
+				Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription
+			};
+			var oldPipeline = pipeline;
+			pipeline = graphicsDevice.ResourceFactory.CreateGraphicsPipeline(pipelineDesc);
+			disposePipeline = oldPipeline;
 		}
 
 		internal void Update(Uniforms uniforms)
@@ -95,7 +88,7 @@ namespace ShaderPlayer
 			commandList.SetPipeline(pipeline);
 			commandList.SetGraphicsResourceSet(0, resourceSet);
 			commandList.Draw(4);
-			disposePipeline?.Dispose();
+			disposePipeline?.Dispose(); // delayed disposing because during creation the old pipeline could still be shown
 			disposePipeline = null;
 		}
 	}

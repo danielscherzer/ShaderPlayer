@@ -27,7 +27,7 @@ namespace ShaderPlayer
 					var sFullMatch = match.Value;
 					var includeName = match.Groups[1].ToString(); // get the include
 					var includeCode = GetIncludeCode(includeName);
-					var lineNumberCorrection = $"{Environment.NewLine}#line{lineNr}{Environment.NewLine}";
+					var lineNumberCorrection = $"{Environment.NewLine}#line {lineNr}{Environment.NewLine}";
 					shaderCode = shaderCode.Replace(sFullMatch, includeCode + lineNumberCorrection); // replace #include with actual include code
 				}
 				++lineNr;
@@ -35,10 +35,42 @@ namespace ShaderPlayer
 			return shaderCode;
 		}
 
-		public static string ReplaceUniforms(string uncommentedShaderCode, Func<Match, string> matchEvaluator)
+		private static string UniformPattern => @"uniform\s+([^\s]+)\s+([^\s]+)\s*;"; //matches uniform<spaces>type<spaces>name<spaces>; 
+
+		public static string MakeShaderCodeConformal(string shaderSourceCode)
 		{
-			var pattern = @"uniform\s+([^\s]+)\s+([^\s]+)\s*;"; //matches uniform<spaces>type<spaces>name<spaces>; 
-			return Regex.Replace(uncommentedShaderCode, pattern, new MatchEvaluator(matchEvaluator));
+			string header = string.Empty;
+			string RemoveVersion(Match match)
+			{
+				header = match.Value;
+				return string.Empty;
+			}
+			var newCode = Regex.Replace(shaderSourceCode, @"^#version\s+\d+", RemoveVersion);
+
+			if (string.IsNullOrEmpty(header))
+			{
+				header = "#version 450 compatibility";
+			}
+			header += '\n';
+			header += Uniforms.ShaderString;
+			header += '\n';
+
+			bool foundGl_FragColor = false;
+			string ReplaceFragColor(Match match)
+			{
+				foundGl_FragColor = true;
+				return "fragColor";
+			}
+			newCode = Regex.Replace(newCode, "gl_FragColor", ReplaceFragColor);
+			if(foundGl_FragColor)
+			{
+				header += "out vec4 fragColor;\n";
+			}
+			header += "#line 1\n";
+
+			newCode = Regex.Replace(newCode, UniformPattern, m => string.Empty);
+			newCode = Regex.Replace(newCode, @"varying\s", m => "in ");
+			return header + newCode;
 		}
 	}
 }
