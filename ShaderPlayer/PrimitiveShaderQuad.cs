@@ -9,9 +9,11 @@ namespace ShaderPlayer
 		public PrimitiveShaderQuad(GraphicsDevice graphicsDevice, string fragmentShaderSourceCode)
 		{
 			this.graphicsDevice = graphicsDevice;
-			uniformsBuffer = graphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription(Uniforms.SizeInBytes, BufferUsage.UniformBuffer));
+			uniformsBuffer = graphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription(PredefinedUniforms.SizeInBytes, BufferUsage.UniformBuffer));
 
-			resourceLayout = graphicsDevice.ResourceFactory.CreateResourceLayout(Uniforms.CalculateLayout());
+			resourceLayout = graphicsDevice.ResourceFactory.CreateResourceLayout(
+				new ResourceLayoutDescription(PredefinedUniforms.ResourceLayoutElementDescription));
+
 			resourceSet = graphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(resourceLayout, uniformsBuffer));
 			Load(fragmentShaderSourceCode);
 		}
@@ -53,6 +55,9 @@ namespace ShaderPlayer
 		public void Dispose()
 		{
 			uniformsBuffer.Dispose();
+			resourceLayout.Dispose();
+			resourceSet.Dispose();
+			disposePipeline?.Dispose();
 			pipeline.Dispose();
 		}
 
@@ -78,7 +83,7 @@ namespace ShaderPlayer
 			disposePipeline = oldPipeline;
 		}
 
-		internal void Update(Uniforms uniforms)
+		internal void Update(PredefinedUniforms uniforms)
 		{
 			graphicsDevice.UpdateBuffer(uniformsBuffer, 0, uniforms);
 		}

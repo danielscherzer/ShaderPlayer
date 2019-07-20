@@ -52,7 +52,7 @@ namespace ShaderPlayer
 				header = "#version 450 compatibility";
 			}
 			header += '\n';
-			header += Uniforms.ShaderString;
+			header += PredefinedUniforms.ShaderString;
 			header += '\n';
 
 			bool foundGl_FragColor = false;
