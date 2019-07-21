@@ -15,10 +15,18 @@ namespace ShaderPlayer
 			{
 				var includeFileName = Path.Combine(dir, includeName);
 				var includeCode = File.ReadAllText(includeFileName);
-				var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(includeCode), "main");
-				//using (resourceFactory.CreateShader(fragmentShaderDesc))
+				try
 				{
-					return includeCode;
+					var conformalIncludeCode = GlslTools.MakeShaderCodeConformal(includeCode);
+					var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(conformalIncludeCode), "main");
+					using (resourceFactory.CreateShader(fragmentShaderDesc))
+					{
+						return includeCode;
+					}
+				}
+				catch(VeldridException vex)
+				{
+					throw new ShaderIncludeException($"Error compiling include file '{includeName}'", vex);
 				}
 			}
 			var expandedShaderCode = GlslTools.ExpandIncludes(shaderCode, GetIncludeCode);

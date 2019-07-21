@@ -38,20 +38,18 @@ namespace ShaderPlayer
 			//var graphicsDevice = VeldridStartup.CreateGraphicsDevice(window, options);
 			//var graphicsDevice = VeldridStartup.CreateVulkanGraphicsDevice(options, window);
 
-			var myGui = new MyGui(window, graphicsDevice);
+			var input = new Input();
+			var myGui = new MyGui(window, graphicsDevice, input);
 
 			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
 
-			string fragmentShaderSourceCode = "#version 330\n" + PredefinedUniforms.ShaderString + "\n" +
-				@"out vec4 fragColor;
-				//in vec2 uv;
-				void main()
-				{
+			string fragmentShaderSourceCode = 
+				@"void main() {
 					vec2 uv = gl_FragCoord.xy / iResolution;
-					fragColor = vec4(uv, abs(sin(iGlobalTime)), 1.0);
+					gl_FragColor = vec4(uv, abs(sin(iGlobalTime)), 1.0);
 				}";
 
-			var shaderQuad = new PrimitiveShaderQuad(graphicsDevice, fragmentShaderSourceCode);
+			var shaderQuad = new PrimitiveShaderQuad(graphicsDevice, GlslTools.MakeShaderCodeConformal(fragmentShaderSourceCode), graphicsDevice.SwapchainFramebuffer.OutputDescription);
 
 			IDisposable fileChangeSubscription = null;
 
@@ -66,6 +64,10 @@ namespace ShaderPlayer
 						{
 							shaderQuad.Load(ShaderFileTools.ShaderFileToSourceCode(fileName, graphicsDevice.ResourceFactory));
 						}
+						catch(ShaderIncludeException siex)
+						{
+							myGui.ShowErrorInfo($"{siex.Message} with\n{siex.InnerException.Message}");
+						}
 						catch (VeldridException vex)
 						{
 							myGui.ShowErrorInfo(vex.Message);
@@ -75,16 +77,17 @@ namespace ShaderPlayer
 			};
 
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
-			var stopwatch = Stopwatch.StartNew();
-			var lastTime = 0f;
+			var time = new Time();
 			while (window.Exists)
 			{
-				var time = (float)stopwatch.Elapsed.TotalSeconds;
-				var deltaTime = time - lastTime;
-				lastTime = time;
+				time.Update();
+				input.Update(window);
+				myGui.Update(time.FrameDelta);
 
 				var viewport = myGui.Viewport;
-				PredefinedUniforms uniforms = new PredefinedUniforms { /*mouse = new Vector4(), */Time = time, Resolution = new Vector2(viewport.Width, viewport.Height) };
+				var mousePos = input.Snapshot.MousePosition;
+				mousePos.Y = viewport.Height - mousePos.Y - 1;
+				PredefinedUniforms uniforms = new PredefinedUniforms { Mouse = new Vector4(mousePos, 0f, 0f), Time = time.Total, Resolution = new Vector2(viewport.Width, viewport.Height) };
 				shaderQuad.Update(uniforms);
 
 				commandList.Begin();
@@ -99,8 +102,6 @@ namespace ShaderPlayer
 				commandList.End();
 				graphicsDevice.SubmitCommands(commandList);
 				graphicsDevice.SwapBuffers();
-				InputSnapshot snapshot = window.PumpEvents();
-				myGui.Update(deltaTime, snapshot); // Feed the input events to the ui
 			}
 
 			fileChangeSubscription?.Dispose();

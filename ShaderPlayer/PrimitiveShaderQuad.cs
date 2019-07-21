@@ -6,9 +6,10 @@ namespace ShaderPlayer
 {
 	internal class PrimitiveShaderQuad : IDisposable
 	{
-		public PrimitiveShaderQuad(GraphicsDevice graphicsDevice, string fragmentShaderSourceCode)
+		public PrimitiveShaderQuad(GraphicsDevice graphicsDevice, string fragmentShaderSourceCode, OutputDescription outputDescription)
 		{
 			this.graphicsDevice = graphicsDevice;
+			this.outputDescription = outputDescription;
 			uniformsBuffer = graphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription(PredefinedUniforms.SizeInBytes, BufferUsage.UniformBuffer));
 
 			resourceLayout = graphicsDevice.ResourceFactory.CreateResourceLayout(
@@ -19,6 +20,7 @@ namespace ShaderPlayer
 		}
 
 		private GraphicsDevice graphicsDevice;
+		private readonly OutputDescription outputDescription;
 		private DeviceBuffer uniformsBuffer;
 		private readonly ResourceLayout resourceLayout;
 		private Pipeline pipeline, disposePipeline;
@@ -76,7 +78,7 @@ namespace ShaderPlayer
 					VertexLayouts = new VertexLayoutDescription[] { },
 					Shaders = shaders
 				},
-				Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription
+				Outputs = outputDescription
 			};
 			var oldPipeline = pipeline;
 			pipeline = graphicsDevice.ResourceFactory.CreateGraphicsPipeline(pipelineDesc);

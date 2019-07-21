@@ -1,7 +1,5 @@
 ﻿using ImGuiNET;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -10,10 +8,11 @@ namespace ShaderPlayer
 {
 	internal class MyGui : IDisposable
 	{
-		public MyGui(Sdl2Window window, GraphicsDevice graphicsDevice)
+		public MyGui(Sdl2Window window, GraphicsDevice graphicsDevice, Input input)
 		{
 			this.window = window;
 			this.graphicsDevice = graphicsDevice;
+			this.input = input;
 			imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, window.Width, window.Height);
 			var style = ImGui.GetStyle();
 			style.FrameBorderSize = 1f;
@@ -44,13 +43,12 @@ namespace ShaderPlayer
 				imGuiRenderer.WindowResized(window.Width, window.Height);
 			};
 			Viewport = new Viewport(0f, 0f, window.Width, window.Height, 0f, 1f);
-			inputTracker = new InputTracker();
 
-			commands.Add(cmdToggleDashboard = new UiCommand("Toggle Dashboard", () => showDashboardWindow = !showDashboardWindow, Key.D));
-			commands.Add(cmdToggleStats = new UiCommand("Toggle Stats", () => showStatsWindow = !showStatsWindow, Key.S));
-			commands.Add(cmdToggleFullscreen = new UiCommand("Toggle Fullscreen", () =>
+			input.Commands.Add(new Command("Toggle Dashboard", () => showDashboardWindow = !showDashboardWindow, Key.D));
+			input.Commands.Add(new Command("Toggle Stats", () => showStatsWindow = !showStatsWindow, Key.S));
+			input.Commands.Add(new Command("Toggle Fullscreen", () =>
 				window.WindowState = WindowState.BorderlessFullScreen == window.WindowState ? WindowState.Normal : WindowState.BorderlessFullScreen, Key.F11));
-			commands.Add(cmdClose = new UiCommand("Close", window.Close, Key.Escape));
+			input.Commands.Add(new Command("Close", window.Close, Key.Escape));
 		}
 
 		public Viewport Viewport { get; private set; }
@@ -63,20 +61,15 @@ namespace ShaderPlayer
 		private readonly ImFontPtr font;
 		private readonly Sdl2Window window;
 		private readonly GraphicsDevice graphicsDevice;
+		private readonly Input input;
 		private ImGuiRenderer imGuiRenderer;
-		private InputTracker inputTracker;
 
-		private List<UiCommand> commands = new List<UiCommand>();
-		private readonly UiCommand cmdToggleDashboard;
-		private readonly UiCommand cmdToggleFullscreen;
-		private readonly UiCommand cmdToggleStats;
-		private readonly UiCommand cmdClose;
 		private bool showDashboardWindow = false;
 		private bool showDemoWindow = false;
 		private bool showStatsWindow = true;
 		private string errorMessage;
 
-		private void MenuItemFromCommand(UiCommand command)
+		private void MenuItemFromCommand(Command command)
 		{
 			if (ImGui.MenuItem(command.Caption, command.Key.ToString()))
 			{
@@ -86,10 +79,6 @@ namespace ShaderPlayer
 
 		private void SubmitUI()
 		{
-			foreach (var command in commands.Where(command => command.Key.HasValue))
-			{
-				if (inputTracker.GetKeyDown(command.Key.Value)) { command.Execute(); }
-			}
 			Viewport = new Viewport(0f, 0f, window.Width, window.Height, 0f, 1f);
 			if (WindowState.BorderlessFullScreen == window.WindowState) return;
 			ImGui.PushFont(font);
@@ -98,10 +87,10 @@ namespace ShaderPlayer
 				{
 					if (ImGui.BeginMenu("Window"))
 					{
-						MenuItemFromCommand(cmdToggleDashboard);
-						MenuItemFromCommand(cmdToggleFullscreen);
-						MenuItemFromCommand(cmdToggleStats);
-						MenuItemFromCommand(cmdClose);
+						foreach(var command in input.Commands)
+						{
+							MenuItemFromCommand(command);
+						}
 
 						ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
 						ImGui.EndMenu();
@@ -134,13 +123,14 @@ namespace ShaderPlayer
 			ImGui.PopFont();
 		}
 
-		static void ShowStatsWindow(ref bool open)
+		void ShowStatsWindow(ref bool open)
 		{
 			var io = ImGui.GetIO();
 			ImGui.SetNextWindowPos(io.DisplaySize - new Vector2(10f, 10f), 0, new Vector2(1f, 1f));
 			ImGui.SetNextWindowBgAlpha(0.35f); // Transparent background
 			if (ImGui.Begin(" ", ref open, ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize))
 			{
+				ImGui.Text($"Viewport: {Viewport.Width}x{Viewport.Height}");
 				ImGui.Text($"Mouse: {ImGui.GetMousePos()}");
 				float framerate = ImGui.GetIO().Framerate;
 				ImGui.Text($"{1000.0f / framerate:0.##} ms");
@@ -149,10 +139,9 @@ namespace ShaderPlayer
 			ImGui.End();
 		}
 
-		internal void Update(float deltaTime, InputSnapshot snapshot)
+		internal void Update(float deltaTime)
 		{
-			inputTracker.UpdateFrameInput(snapshot, window);
-			imGuiRenderer.Update(deltaTime, snapshot);
+			imGuiRenderer.Update(deltaTime, input.Snapshot);
 			SubmitUI();
 		}
 

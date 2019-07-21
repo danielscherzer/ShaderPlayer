@@ -3,14 +3,14 @@ using Veldrid;
 
 namespace ShaderPlayer
 {
-	class UiCommand
+	class Command
 	{
 		private readonly Action action;
 
-		public UiCommand(string caption, Action action, Key? key)
+		public Command(string caption, Action action, Key? key)
 		{
-			Caption = caption;
 			this.action = action ?? throw new ArgumentNullException(nameof(action));
+			Caption = caption;
 			Key = key;
 		}
 
