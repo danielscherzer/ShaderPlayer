@@ -17,7 +17,7 @@ namespace ShaderPlayer
 				var includeCode = File.ReadAllText(includeFileName);
 				try
 				{
-					var conformalIncludeCode = GlslTools.MakeShaderCodeConformal(includeCode);
+					var conformalIncludeCode = GlslTools.MakeConformal(includeCode);
 					var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(conformalIncludeCode), "main");
 					using (resourceFactory.CreateShader(fragmentShaderDesc))
 					{
@@ -30,7 +30,7 @@ namespace ShaderPlayer
 				}
 			}
 			var expandedShaderCode = GlslTools.ExpandIncludes(shaderCode, GetIncludeCode);
-			return GlslTools.MakeShaderCodeConformal(expandedShaderCode);
+			return GlslTools.MakeConformal(expandedShaderCode);
 		}
 	}
 }

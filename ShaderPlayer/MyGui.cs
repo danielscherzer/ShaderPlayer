@@ -83,11 +83,15 @@ namespace ShaderPlayer
 			if (WindowState.BorderlessFullScreen == window.WindowState) return;
 			ImGui.PushFont(font);
 			{
-				if(ImGui.BeginMainMenuBar())
+				if (ImGui.IsMouseClicked(1))
+				{
+					ImGui.OpenPopup("pop-up");
+				}
+				if(ImGui.BeginPopup("pop-up"))
 				{
 					if (ImGui.BeginMenu("Window"))
 					{
-						foreach(var command in input.Commands)
+						foreach (var command in input.Commands)
 						{
 							MenuItemFromCommand(command);
 						}
@@ -95,10 +99,24 @@ namespace ShaderPlayer
 						ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
 						ImGui.EndMenu();
 					}
-					var clientStart = ImGui.GetWindowHeight();
-					Viewport = new Viewport(0f, clientStart, window.Width, window.Height - clientStart, 0f, 1f);
-					ImGui.EndMainMenuBar();
+					ImGui.EndPopup();
 				}
+				//if (ImGui.BeginMainMenuBar())
+				//{
+				//	if (ImGui.BeginMenu("Window"))
+				//	{
+				//		foreach(var command in input.Commands)
+				//		{
+				//			MenuItemFromCommand(command);
+				//		}
+
+				//		ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
+				//		ImGui.EndMenu();
+				//	}
+				//	var clientStart = ImGui.GetWindowHeight();
+				//	Viewport = new Viewport(0f, clientStart, window.Width, window.Height - clientStart, 0f, 1f);
+				//	ImGui.EndMainMenuBar();
+				//}
 				if(!string.IsNullOrEmpty(errorMessage))
 				{
 					ImGui.Begin("Shader Log");

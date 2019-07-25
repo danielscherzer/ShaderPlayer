@@ -37,7 +37,7 @@ namespace ShaderPlayer
 
 		private static string UniformPattern => @"uniform\s+([^\s]+)\s+([^\s]+)\s*;"; //matches uniform<spaces>type<spaces>name<spaces>; 
 
-		public static string MakeShaderCodeConformal(string shaderSourceCode)
+		public static string MakeConformal(string shaderSourceCode)
 		{
 			string header = string.Empty;
 			string RemoveVersion(Match match)

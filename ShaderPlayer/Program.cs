@@ -1,7 +1,7 @@
 ﻿using Jot;
 using Jot.Storage;
 using System;
-using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Veldrid;
@@ -20,6 +20,8 @@ namespace ShaderPlayer
 			{
 				SetProcessDPIAware(); // no DPI scaling -> no blurry fonts
 			}
+
+			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
 			var tracker = new Tracker(new JsonFileStore("./"));
 			tracker.Configure<Veldrid.Sdl2.Sdl2Window>().Id(w => nameof(ShaderPlayer))
 				.Property(w => w.X, 200)
@@ -28,8 +30,6 @@ namespace ShaderPlayer
 				.Property(w => w.Height, 1024)
 				.WhenPersistingProperty((wnd, property) => property.Cancel = WindowState.Normal != wnd.WindowState)
 				.PersistOn(nameof(Veldrid.Sdl2.Sdl2Window.Closing));
-
-			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
 			tracker.Track(window);
 
 			var options = new GraphicsDeviceOptions() { PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true };
@@ -41,40 +41,27 @@ namespace ShaderPlayer
 			var input = new Input();
 			var myGui = new MyGui(window, graphicsDevice, input);
 
+			var viewModel = new ShaderViewModel(graphicsDevice);
+
 			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
+			window.Resized += () => viewModel.Resize((uint)window.Width, (uint)window.Height);
 
-			string fragmentShaderSourceCode = 
-				@"void main() {
-					vec2 uv = gl_FragCoord.xy / iResolution;
-					gl_FragColor = vec4(uv, abs(sin(iGlobalTime)), 1.0);
-				}";
-
-			var shaderQuad = new PrimitiveShaderQuad(graphicsDevice, GlslTools.MakeShaderCodeConformal(fragmentShaderSourceCode), graphicsDevice.SwapchainFramebuffer.OutputDescription);
-
+			var tasks = new ConcurrentQueue<Action>();
 			IDisposable fileChangeSubscription = null;
 
-			window.DragDrop += (dropEvent) =>
+			void LoadShader(string shaderFileName)
 			{
 				fileChangeSubscription?.Dispose();
-				fileChangeSubscription = TrackedFile.Load(dropEvent.File).Subscribe(
+				fileChangeSubscription = TrackedFile.Load(shaderFileName).Subscribe(
 					fileName =>
 					{
-						myGui.ShowErrorInfo(string.Empty);
-						try
-						{
-							shaderQuad.Load(ShaderFileTools.ShaderFileToSourceCode(fileName, graphicsDevice.ResourceFactory));
-						}
-						catch(ShaderIncludeException siex)
-						{
-							myGui.ShowErrorInfo($"{siex.Message} with\n{siex.InnerException.Message}");
-						}
-						catch (VeldridException vex)
-						{
-							myGui.ShowErrorInfo(vex.Message);
-						}
+						tasks.Enqueue(() => myGui.ShowErrorInfo(viewModel.Load(fileName)));
+						//myGui.ShowErrorInfo(viewModel.Load(fileName));
 						window.Title = fileName;
 					});
-			};
+			}
+			window.DragDrop += (dropEvent) => LoadShader(dropEvent.File);
+			LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
 
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 			var time = new Time();
@@ -87,27 +74,23 @@ namespace ShaderPlayer
 				var viewport = myGui.Viewport;
 				var mousePos = input.Snapshot.MousePosition;
 				mousePos.Y = viewport.Height - mousePos.Y - 1;
-				PredefinedUniforms uniforms = new PredefinedUniforms { Mouse = new Vector4(mousePos, 0f, 0f), Time = time.Total, Resolution = new Vector2(viewport.Width, viewport.Height) };
-				shaderQuad.Update(uniforms);
+				viewModel.Update(mousePos, time.Total);
 
 				commandList.Begin();
-				commandList.SetFramebuffer(graphicsDevice.SwapchainFramebuffer);
-				commandList.SetViewport(0, viewport);
-
-				shaderQuad.Draw(commandList);
-
-				commandList.SetFullViewport(0);
-				myGui.Render(commandList);
-
+					viewModel.Draw(commandList);
+					myGui.Render(commandList);
 				commandList.End();
 				graphicsDevice.SubmitCommands(commandList);
 				graphicsDevice.SwapBuffers();
+				if(tasks.TryDequeue(out var task))
+				{
+					task();
+				}
 			}
 
 			fileChangeSubscription?.Dispose();
 			graphicsDevice.WaitForIdle();
 			myGui.Dispose();
-			shaderQuad.Dispose();
 			commandList.Dispose();
 			graphicsDevice.Dispose();
 		}

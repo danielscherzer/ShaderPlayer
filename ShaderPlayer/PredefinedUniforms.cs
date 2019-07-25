@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using Veldrid;
 
 namespace ShaderPlayer
 {
@@ -14,16 +13,18 @@ namespace ShaderPlayer
 		public float Time { get; set; }
 		private readonly float padding;
 
-		public static readonly string ShaderString = "uniform " + nameof(PredefinedUniforms) 
+		public const string ResourceName = nameof(PredefinedUniforms);
+		public static readonly string ShaderString = "uniform " + ResourceName
 			+ " { vec4 iMouse;"
 			+ " float iCamPosX; float iCamPosY; float iCamPosZ; float paddingCamPos;"
 			+ " float iCamRotX; float iCamRotY; float iCamRotZ; float paddingCamRot;"
 			+ " vec2 iResolution;"
-			+ " float iGlobalTime; float padding; };";
+			+ " float iGlobalTime; float padding; };\n"
+			+ "uniform sampler2D texInput;\n"
+			//+ "uniform texture2D texInput;\n"
+			//+ "uniform sampler samplerInput;\n"
+			;
 
 		public static readonly uint SizeInBytes = (uint)Marshal.SizeOf<PredefinedUniforms>();
-
-		public static readonly ResourceLayoutElementDescription ResourceLayoutElementDescription 
-			= new ResourceLayoutElementDescription(nameof(PredefinedUniforms), ResourceKind.UniformBuffer, ShaderStages.Fragment);
 	}
 }
