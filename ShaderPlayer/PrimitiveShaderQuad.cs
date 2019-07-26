@@ -7,10 +7,11 @@ namespace ShaderPlayer
 {
 	internal class PrimitiveShaderQuad : IDisposable
 	{
-		public PrimitiveShaderQuad(GraphicsDevice graphicsDevice, TextureView inputTextureView, string shaderCode, Framebuffer output)
+		public PrimitiveShaderQuad(TextureView inputTextureView, string shaderCode, Framebuffer output)
 		{
 			Output = output ?? throw new ArgumentNullException(nameof(output));
 
+			graphicsDevice = IoC.Resolve<GraphicsDevice>();
 			var resourceFactory = graphicsDevice.ResourceFactory;
 
 			uniformsBuffer = resourceFactory.CreateBuffer(new BufferDescription(PredefinedUniforms.SizeInBytes, BufferUsage.UniformBuffer));
@@ -32,6 +33,14 @@ namespace ShaderPlayer
 			Load(resourceFactory, shaderCode);
 		}
 
+		public void Dispose()
+		{
+			uniformsBuffer.Dispose();
+			resourceLayout.Dispose();
+			resourceSet.Dispose();
+			pipeline.Dispose();
+		}
+
 		internal void Draw(CommandList commandList)
 		{
 			commandList.SetFramebuffer(Output);
@@ -41,7 +50,7 @@ namespace ShaderPlayer
 			commandList.Draw(4);
 		}
 
-		internal void Update(GraphicsDevice graphicsDevice, PredefinedUniforms uniforms)
+		internal void Update(PredefinedUniforms uniforms)
 		{
 			graphicsDevice.UpdateBuffer(uniformsBuffer, 0, uniforms);
 		}
@@ -52,6 +61,8 @@ namespace ShaderPlayer
 		private readonly ResourceSet resourceSet;
 
 		private Framebuffer Output { get; }
+
+		private GraphicsDevice graphicsDevice;
 
 		private static Shader[] LoadShader(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
 		{
@@ -79,14 +90,6 @@ namespace ShaderPlayer
 			var vertexShader = resourceFactory.CreateShader(vertexShaderDesc);
 			var fragmentShader = resourceFactory.CreateShader(fragmentShaderDesc);
 			return new Shader[] { vertexShader, fragmentShader };
-		}
-
-		public void Dispose()
-		{
-			uniformsBuffer.Dispose();
-			resourceLayout.Dispose();
-			resourceSet.Dispose();
-			pipeline.Dispose();
 		}
 
 		private void Load(ResourceFactory resourceFactory, string fragmentShaderSourceCode)

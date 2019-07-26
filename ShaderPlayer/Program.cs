@@ -2,7 +2,6 @@
 using Jot.Storage;
 using System;
 using System.Collections.Concurrent;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using Veldrid;
 using Veldrid.StartupUtilities;
@@ -22,6 +21,7 @@ namespace ShaderPlayer
 			}
 
 			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
+			IoC.RegisterInstance(window);
 			var tracker = new Tracker(new JsonFileStore("./"));
 			tracker.Configure<Veldrid.Sdl2.Sdl2Window>().Id(w => nameof(ShaderPlayer))
 				.Property(w => w.X, 200)
@@ -38,12 +38,15 @@ namespace ShaderPlayer
 			//var graphicsDevice = VeldridStartup.CreateGraphicsDevice(window, options);
 			//var graphicsDevice = VeldridStartup.CreateVulkanGraphicsDevice(options, window);
 
-			var input = new Input();
-			var myGui = new MyGui(window, graphicsDevice, input);
+			IoC.RegisterInstance(graphicsDevice);
 
-			var viewModel = new ShaderViewModel(graphicsDevice);
+
+			var input = new Input();
+			var myGui = new MyGui(input);
 
 			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
+
+			var viewModel = new ShaderViewModel();
 			window.Resized += () => viewModel.Resize((uint)window.Width, (uint)window.Height);
 
 			var tasks = new ConcurrentQueue<Action>();
@@ -64,6 +67,7 @@ namespace ShaderPlayer
 			LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
 
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
+			IoC.RegisterInstance(commandList);
 			var time = new Time();
 			while (window.Exists)
 			{

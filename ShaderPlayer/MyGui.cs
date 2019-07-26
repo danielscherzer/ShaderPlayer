@@ -8,10 +8,10 @@ namespace ShaderPlayer
 {
 	internal class MyGui : IDisposable
 	{
-		public MyGui(Sdl2Window window, GraphicsDevice graphicsDevice, Input input)
+		public MyGui(Input input)
 		{
-			this.window = window;
-			this.graphicsDevice = graphicsDevice;
+			this.window = IoC.Resolve<Sdl2Window>();
+			this.graphicsDevice = IoC.Resolve<GraphicsDevice>();
 			this.input = input;
 			imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, window.Width, window.Height);
 			var style = ImGui.GetStyle();
