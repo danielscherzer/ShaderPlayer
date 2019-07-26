@@ -8,7 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{38983BE7-7CC4-4FDD-9DE0-5D9C96D2612A}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		Architecture.dgml = Architecture.dgml
 		CONTRIBUTING.md = CONTRIBUTING.md
+		Graph1.dgml = Graph1.dgml
 		ISSUE_TEMPLATE.md = ISSUE_TEMPLATE.md
 		LICENSE = LICENSE
 	EndProjectSection

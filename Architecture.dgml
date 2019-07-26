@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph DataVirtualized="True" GraphDirection="LeftToRight" Layout="Sugiyama" ZoomLevel="-1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Application" Bounds="0,60,80.1033333333334,25.96" ErrorMessage="Unreferenced node detected:Application (Application)" IsUnreferenced="True" />
+    <Node Id="Camera" Bounds="519.531666666667,56.0000000000001,58.5433333333333,25.96" Label="camera" />
+    <Node Id="ErrorLog" Bounds="358.731666666667,286,66.1166666666667,25.96" Label="error log" />
+    <Node Id="Input" Bounds="643.401666666667,139,50,25.96" ErrorMessage="Node 'Input' has a hub value of 53." Hub="53" Label="Input" />
+    <Node Id="InputBuffer" Bounds="365.973333333334,178,51.6333333333333,25.96" Label="Buffer" />
+    <Node Id="LastFrame" Bounds="339.969619547526,97.6562103546143,70.9266666666667,25.96" ErrorMessage="Unreferenced node detected:lastFrame (LastFrame)" IsUnreferenced="True" Label="lastFrame" UseManualLocation="True" />
+    <Node Id="Output" Bounds="519.896666666667,254,57.8133333333333,25.96" />
+    <Node Id="Resolution" Bounds="512.271666666667,198,73.0633333333335,25.96" Label="resolution" />
+    <Node Id="Shader" Bounds="227.338333333333,286,56.7866666666667,25.96" Label="Shader" />
+    <Node Id="ShaderSet" Bounds="111.790833333333,104,76.79,25.96" Label="Shader Set" />
+    <Node Id="Shaderfile" Bounds="630.441666666667,426,75.9200000000001,25.96" Label="Shader file" />
+    <Node Id="SourceCode" Bounds="505.165,387,87.2766666666666,25.96" Label="Source Code" />
+    <Node Id="Time" Bounds="523.803333333334,0,50,25.96" Label="Time" />
+    <Node Id="UI" Bounds="366.789978027344,41.6961103546142,50,25.96" />
+  </Nodes>
+  <Links>
+    <Link Source="Application" Target="ShaderSet" Category="has" Bounds="72.5412458333333,85.96,36.7973145169552,14.700995047671" />
+    <Link Source="Application" Target="UI" Category="has" Bounds="80.1033333333334,56.4447822031942,277.698805965561,14.450994204714" />
+    <Link Source="Camera" Target="Input" Category="is" Bounds="567.506783534137,81.9600000000001,74.7975279815101,51.908706830909" LabelBounds="606.045834895801,90.3112634265175,8,15.96" />
+    <Link Source="ErrorLog" Target="Output" Category="is" Bounds="424.848333333334,274.668596868803,86.2296180304084,17.57397106598" LabelBounds="463.563744010543,263.494754260473,8,15.96" />
+    <Link Source="InputBuffer" Target="Input" Category="is" Bounds="417.606666666667,156.761296712976,216.883142240917,30.5787628169303" LabelBounds="521.769015650513,152.090484395663,8,15.96" />
+    <Link Source="InputBuffer" Target="Output" Category="is" Bounds="416.748374542699,203.060734960375,97.3218210490472,47.1071993868521" LabelBounds="466.280646661952,208.854132173181,8,15.96" />
+    <Link Source="InputBuffer" Target="Resolution" Category="has" Bounds="417.606666666667,194.268468070652,85.7371362380136,10.9210007096655" Label="" LabelBounds="460.677948320603,179.76883890248,0,15.96" />
+    <Link Source="LastFrame" Target="Input" Category="is" Bounds="410.896286214193,115.640801372239,223.593680789415,31.5535743907236" LabelBounds="518.97259781287,111.457394142799,8,15.96" />
+    <Link Source="LastFrame" Target="InputBuffer" Bounds="378.075527652893,123.616210354614,9.27643534139946,45.564701519766" />
+    <Link Source="Resolution" Target="Input" Category="is" Bounds="575.114966666667,167.925087775886,60.9645657144118,30.0749122241137" LabelBounds="596.712423297809,165.20892114342,8,15.96" />
+    <Link Source="Shader" Target="ErrorLog" Category="has" Bounds="284.125,298.98,65.6066666666673,0" Label="creates" LabelBounds="298.16,279.02,37.5366666666666,15.96" />
+    <Link Source="Shader" Target="Input" Category="has" Bounds="283.0185546875,159.271408081055,351.585510253906,127.40168762207" Label="many" LabelBounds="358.445504044681,222.35902418065,29.04,15.96" />
+    <Link Source="Shader" Target="InputBuffer" Category="has" Bounds="272.083862654321,209.555467329938,96.3047750697615,76.4445326700619" Label="writes" LabelBounds="287.802813004771,230.251252267577,31.1900000000001,15.96" />
+    <Link Source="Shader" Target="SourceCode" Category="has" Bounds="284.125,308.765069635982,218.505385263534,75.3025502691045" />
+    <Link Source="ShaderSet" Target="Shader" Category="has" Bounds="157.713222985348,129.96,85.9760446992327,148.254456297125" Label="many" LabelBounds="202.431366157825,187.12389274188,29.04,15.96" />
+    <Link Source="SourceCode" Target="Input" Category="is" Bounds="555.06295577957,173.066574054435,103.169682207176,213.933425945565" LabelBounds="596.846335982173,263.204530086399,8,15.96" />
+    <Link Source="SourceCode" Target="Shaderfile" Bounds="588.608111965812,412.96,34.1485938807646,11.1355662259771" />
+    <Link Source="Time" Target="Input" Category="is" Bounds="559.97158057554,25.96,91.3918397878767,106.217748830236" LabelBounds="607.183556284982,61.8044301793306,0,15.96">
+      <Category Ref="test" />
+    </Link>
+    <Link Source="UI" Target="Camera" Category="has" Bounds="416.789978027344,56.9536060519564,93.778804081563,8.54323291190613" />
+    <Link Source="UI" Target="Time" Category="has" Bounds="416.789978027344,21.928900197763,98.31484399644,26.1082668845804" Label="shows" LabelBounds="440.546429360349,15.0207115203445,32.6799999999998,15.96" />
+  </Links>
+  <Categories>
+    <Category Id="has" Label="has" IsTag="True" />
+    <Category Id="is" Label="is" IsTag="True" />
+    <Category Id="test" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="DataVirtualized" Label="Data Virtualized" Description="If true, the graph can contain nodes and links that represent data for virtualized nodes/links (i.e. not actually created in the graph)." DataType="System.Boolean" />
+    <Property Id="ErrorMessage" Label="Error" Description="Error" DataType="System.String" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="Hub" Label="Hub" Description="Node is in the top 10% of highly connected nodes" DataType="System.Int32" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsTag" DataType="System.Boolean" />
+    <Property Id="IsUnreferenced" Label="Unreferenced" Description="Node has no links pointing to it from other nodes in the graph" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="ToolTip" DataType="System.String" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Unreferenced" ToolTip="Node has no links pointing to it from other nodes in the graph" ValueLabel="True">
+      <Condition Expression="IsUnreferenced" />
+      <Setter Property="Background" Value="Purple" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Hub" ToolTip="Node is in the top 10% of highly connected nodes" ValueLabel="Hub">
+      <Condition Expression="HasValue(&quot;Hub&quot;)" />
+      <Setter Property="Background" Value="#FFFBA8A9" />
+    </Style>
+    <Style TargetType="Group" GroupLabel="Hub" ToolTip="Node is in the top 10% of highly connected nodes" ValueLabel="Hub Container">
+      <Condition Expression="IsHubContainer" />
+      <Setter Property="Stroke" Value="#FFFBA8A9" />
+      <Setter Property="StrokeThickness" Value="6" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Circular References" ToolTip="Node is part of a strongly coupled component" ValueLabel="Nodes">
+      <Condition Expression="IsStronglyConnected" />
+      <Setter Property="Stroke" Value="#D02030" />
+      <Setter Property="StrokeThickness" Value="2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Circular References" ToolTip="Node is part of a strongly coupled component" ValueLabel="Links">
+      <Condition Expression="IsCircularLink" />
+      <Setter Property="Stroke" Value="#D02030" />
+      <Setter Property="StrokeThickness" Value="2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Is a" ValueLabel="Links">
+      <Condition Expression="HasCategory('is')" />
+      <Setter Property="Stroke" Value="#FF00AEEF" />
+      <Setter Property="StrokeDashArray" Value="2 2" />
+      <Setter Property="DrawArrow" Value="true" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Has a" ValueLabel="Links">
+      <Condition Expression="HasCategory('has')" />
+      <Setter Property="Stroke" Value="#FFFF00FF" />
+      <Setter Property="DrawArrow" Value="true" />
+    </Style>
+  </Styles>
+</DirectedGraph>
