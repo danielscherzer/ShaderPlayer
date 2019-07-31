@@ -20,7 +20,7 @@ namespace ShaderPlayer
 				SetProcessDPIAware(); // no DPI scaling -> no blurry fonts
 			}
 
-			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, "CG Exercise"));
+			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, nameof(ShaderPlayer)));
 			IoC.RegisterInstance(window);
 			var tracker = new Tracker(new JsonFileStore("./"));
 			tracker.Configure<Veldrid.Sdl2.Sdl2Window>().Id(w => nameof(ShaderPlayer))
@@ -38,18 +38,19 @@ namespace ShaderPlayer
 			//var graphicsDevice = VeldridStartup.CreateGraphicsDevice(window, options);
 			//var graphicsDevice = VeldridStartup.CreateVulkanGraphicsDevice(options, window);
 
+			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
 			IoC.RegisterInstance(graphicsDevice);
 
 
 			var input = new Input();
 			var myGui = new MyGui(input);
 
-			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
-
 			var viewModel = new ShaderViewModel();
 			window.Resized += () => viewModel.Resize((uint)window.Width, (uint)window.Height);
 
-			var tasks = new ConcurrentQueue<Action>();
+			var taskService = new TaskService();
+			IoC.RegisterInstance(taskService);
+
 			IDisposable fileChangeSubscription = null;
 
 			void LoadShader(string shaderFileName)
@@ -58,16 +59,16 @@ namespace ShaderPlayer
 				fileChangeSubscription = TrackedFile.Load(shaderFileName).Subscribe(
 					fileName =>
 					{
-						tasks.Enqueue(() => myGui.ShowErrorInfo(viewModel.Load(fileName)));
-						//myGui.ShowErrorInfo(viewModel.Load(fileName));
+						//taskService.AddTask(() => myGui.ShowErrorInfo(viewModel.Load(fileName)));
+						myGui.ShowErrorInfo(viewModel.Load(fileName));
 						window.Title = fileName;
 					});
 			}
 			window.DragDrop += (dropEvent) => LoadShader(dropEvent.File);
-			LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
+			//LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
 
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
-			IoC.RegisterInstance(commandList);
+			//IoC.RegisterInstance(commandList);
 			var time = new Time();
 			while (window.Exists)
 			{
@@ -86,14 +87,12 @@ namespace ShaderPlayer
 				commandList.End();
 				graphicsDevice.SubmitCommands(commandList);
 				graphicsDevice.SwapBuffers();
-				if(tasks.TryDequeue(out var task))
-				{
-					task();
-				}
+				taskService.ProcessNextTask();
 			}
 
 			fileChangeSubscription?.Dispose();
 			graphicsDevice.WaitForIdle();
+			viewModel.Dispose();
 			myGui.Dispose();
 			commandList.Dispose();
 			graphicsDevice.Dispose();

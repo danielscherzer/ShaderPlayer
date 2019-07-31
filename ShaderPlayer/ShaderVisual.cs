@@ -17,6 +17,9 @@ namespace ShaderPlayer
 					gl_FragColor = color;
 				}";
 			shaderQuadCopy = new PrimitiveShaderQuad(renderSurface.View, GlslTools.MakeConformal(copyShaderSourceCode), graphicsDevice.SwapchainFramebuffer);
+			Width = width;
+			Height = height;
+			SourceCode = sourceCode;
 		}
 
 		public void Draw(CommandList commandList)
@@ -44,5 +47,9 @@ namespace ShaderPlayer
 		private readonly PrimitiveShaderQuad shaderQuad;
 		private readonly PrimitiveShaderQuad shaderQuadCopy;
 		private readonly GraphicsDevice graphicsDevice;
+
+		public uint Width { get; }
+		public uint Height { get; }
+		public string SourceCode { get; }
 	}
 }

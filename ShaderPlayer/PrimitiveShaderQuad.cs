@@ -66,8 +66,7 @@ namespace ShaderPlayer
 
 		private static Shader[] LoadShader(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
 		{
-			const string vertexCode = @"
-				#version 450
+			const string vertexCode = @"#version 330
 
 				out vec2 uv;
 

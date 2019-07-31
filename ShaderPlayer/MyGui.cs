@@ -126,7 +126,7 @@ namespace ShaderPlayer
 				if(showDashboardWindow && ImGui.Begin("Dashboard", ref showDashboardWindow))
 				{
 					ImGuiIOPtr io = ImGui.GetIO();
-					ImGui.SliderFloat("Font scale", ref io.FontGlobalScale, 0.2f, 2f);
+					ImGui.SliderFloat("Font scale", ref io.FontGlobalScale, 0.2f, 2f, "%.1f");
 					//ImGui.Text("Hello, world!");
 					//ImGui.ColorEdit4("color", ref color);
 					//if (ImGui.Button("Button")) _counter++;
