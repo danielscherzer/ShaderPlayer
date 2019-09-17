@@ -49,7 +49,7 @@ namespace ShaderPlayer
 
 			if (string.IsNullOrEmpty(header))
 			{
-				header = "#version 450 compatibility";
+				header = "#version 330 compatibility";
 			}
 			header += '\n';
 			header += PredefinedUniforms.ShaderString;
@@ -62,7 +62,7 @@ namespace ShaderPlayer
 				return "fragColor";
 			}
 			newCode = Regex.Replace(newCode, "gl_FragColor", ReplaceFragColor);
-			if(foundGl_FragColor)
+			if (foundGl_FragColor)
 			{
 				header += "out vec4 fragColor;\n";
 			}

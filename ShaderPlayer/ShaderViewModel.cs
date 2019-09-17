@@ -8,14 +8,18 @@ namespace ShaderPlayer
 	{
 		public ShaderViewModel()
 		{
-			var framebuffer = IoC.Resolve<GraphicsDevice>().SwapchainFramebuffer;
 			var sourceCode = @"void main() {
 					vec2 uv = gl_FragCoord.xy / iResolution;
 					gl_FragColor = vec4(uv, abs(sin(iGlobalTime)), 1.0);
 				}";
 			sourceCode = GlslTools.MakeConformal(sourceCode);
+
+			var framebuffer = IoC.Resolve<GraphicsDevice>().SwapchainFramebuffer;
+			//ResolutionX = 
 			shaderVisual = new ShaderVisual(framebuffer.Width, framebuffer.Height, sourceCode);
 		}
+
+		//public uint ResolutionX { get; private set; }
 
 		public void Resize(uint width, uint height)
 		{
@@ -25,19 +29,10 @@ namespace ShaderPlayer
 			shaderVisual = new ShaderVisual(width, height, sourceCode);
 		}
 
-		public void Draw(CommandList commandList)
+		public void Draw(CommandList commandList, Vector2 mousePos, float time)
 		{
+			shaderVisual.Update(mousePos, time);
 			shaderVisual.Draw(commandList);
-
-			if(newShaderVisual != null)
-			{
-				IoC.Resolve<TaskService>().AddTask(() =>
-				{
-					shaderVisual.Dispose();
-					shaderVisual = newShaderVisual;
-					newShaderVisual = null;
-				});
-			}
 		}
 
 		public void Dispose()
@@ -51,7 +46,9 @@ namespace ShaderPlayer
 			{
 				var graphicsDevice = IoC.Resolve<GraphicsDevice>();
 				var sourceCode = ShaderFileTools.ShaderFileToSourceCode(shaderFileName, graphicsDevice.ResourceFactory);
-				newShaderVisual = new ShaderVisual(shaderVisual.Width, shaderVisual.Height, sourceCode);
+				var newShaderVisual = new ShaderVisual(shaderVisual.Width, shaderVisual.Height, sourceCode);
+				shaderVisual.Dispose();
+				shaderVisual = newShaderVisual;
 			}
 			catch (ShaderIncludeException siex)
 			{
@@ -64,12 +61,6 @@ namespace ShaderPlayer
 			return string.Empty;
 		}
 
-		internal void Update(Vector2 mousePos, float time)
-		{
-			shaderVisual.Update(mousePos, time);
-		}
-
 		private ShaderVisual shaderVisual;
-		private ShaderVisual newShaderVisual;
 	}
 }

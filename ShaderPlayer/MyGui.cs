@@ -1,144 +1,98 @@
 ﻿using ImGuiNET;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Veldrid;
 using Veldrid.Sdl2;
 
 namespace ShaderPlayer
 {
-	internal class MyGui : IDisposable
+	internal class MyGui
 	{
-		public MyGui(Input input)
+		public MyGui(MainViewModel mainViewModel)
 		{
-			this.window = IoC.Resolve<Sdl2Window>();
-			this.graphicsDevice = IoC.Resolve<GraphicsDevice>();
-			this.input = input;
-			imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, window.Width, window.Height);
-			var style = ImGui.GetStyle();
-			style.FrameBorderSize = 1f;
-			style.WindowBorderSize = 3f;
+			MainViewModel = mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel));
 
-			var io = ImGui.GetIO();
-			io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
-			io.ConfigWindowsResizeFromEdges = true;
-			var fonts = io.Fonts;
-			//fonts.ClearFonts();
-			//var config = new ImFontConfig
-			//{
-			//	OversampleH = 2,
-			//	OversampleV = 2,
-			//};
-			//IntPtr unmanagedAddr = Marshal.AllocHGlobal(Marshal.SizeOf(config));
-			//Marshal.StructureToPtr(config, unmanagedAddr, true);
-
-			font = fonts.AddFontFromFileTTF("Content/DroidSans.ttf", 32);
-			//font.ConfigDataCount = 1;
-			//var i = font.ConfigDataCount;
-			//font = fonts.AddFontFromFileTTF(@"D:\arial.ttf", 26, new ImFontConfigPtr(unmanagedAddr));
-			//io.FontDefault = font;
-			imGuiRenderer.RecreateFontDeviceTexture();
-
-			window.Resized += () =>
-			{
-				imGuiRenderer.WindowResized(window.Width, window.Height);
-			};
+			window = IoC.Resolve<Sdl2Window>();
 			Viewport = new Viewport(0f, 0f, window.Width, window.Height, 0f, 1f);
 
-			input.Commands.Add(new Command("Toggle Dashboard", () => showDashboardWindow = !showDashboardWindow, Key.D));
-			input.Commands.Add(new Command("Toggle Stats", () => showStatsWindow = !showStatsWindow, Key.S));
-			input.Commands.Add(new Command("Toggle Fullscreen", () =>
-				window.WindowState = WindowState.BorderlessFullScreen == window.WindowState ? WindowState.Normal : WindowState.BorderlessFullScreen, Key.F11));
-			input.Commands.Add(new Command("Close", window.Close, Key.Escape));
+			commandCaption.Add(("Toggle Dashboard", new CommandBinding(mainViewModel.ToggleDashboardWindow, Key.D)));
+			commandCaption.Add(("Toggle Stats", new CommandBinding(mainViewModel.ToggleStatsWindow, Key.S)));
+			commandCaption.Add(("Toggle Fullscreen", new CommandBinding(() =>
+				window.WindowState = WindowState.BorderlessFullScreen == window.WindowState ? WindowState.Normal : WindowState.BorderlessFullScreen, Key.F11)));
+			commandCaption.Add(("Close", new CommandBinding(window.Close, Key.Escape)));
 		}
+
+		public IEnumerable<CommandBinding> CommandBindings => commandCaption.Select( cb => cb.commandBinding);
 
 		public Viewport Viewport { get; private set; }
 
-		internal void ShowErrorInfo(string message)
-		{
-			errorMessage = message;
-		}
-
-		private readonly ImFontPtr font;
 		private readonly Sdl2Window window;
-		private readonly GraphicsDevice graphicsDevice;
-		private readonly Input input;
-		private ImGuiRenderer imGuiRenderer;
+		private readonly List<(string caption, CommandBinding commandBinding)> commandCaption = new List<(string caption, CommandBinding)>();
 
-		private bool showDashboardWindow = false;
+		public MainViewModel MainViewModel { get; }
+
 		private bool showDemoWindow = false;
-		private bool showStatsWindow = true;
-		private string errorMessage;
 
-		private void MenuItemFromCommand(Command command)
+		private void MenuItemFromCommand(string caption, CommandBinding commandBinding)
 		{
-			if (ImGui.MenuItem(command.Caption, command.Key.ToString()))
+			if (ImGui.MenuItem(caption, commandBinding.Key.ToString()))
 			{
-				command.Execute();
+				commandBinding.Execute();
 			}
 		}
 
-		private void SubmitUI()
+		public void Submit()
 		{
 			Viewport = new Viewport(0f, 0f, window.Width, window.Height, 0f, 1f);
 			if (WindowState.BorderlessFullScreen == window.WindowState) return;
-			ImGui.PushFont(font);
+			if (ImGui.IsMouseClicked(1))
 			{
-				if (ImGui.IsMouseClicked(1))
-				{
-					ImGui.OpenPopup("pop-up");
-				}
-				if(ImGui.BeginPopup("pop-up"))
-				{
-					if (ImGui.BeginMenu("Window"))
-					{
-						foreach (var command in input.Commands)
-						{
-							MenuItemFromCommand(command);
-						}
-
-						ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
-						ImGui.EndMenu();
-					}
-					ImGui.EndPopup();
-				}
-				//if (ImGui.BeginMainMenuBar())
-				//{
-				//	if (ImGui.BeginMenu("Window"))
-				//	{
-				//		foreach(var command in input.Commands)
-				//		{
-				//			MenuItemFromCommand(command);
-				//		}
-
-				//		ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
-				//		ImGui.EndMenu();
-				//	}
-				//	var clientStart = ImGui.GetWindowHeight();
-				//	Viewport = new Viewport(0f, clientStart, window.Width, window.Height - clientStart, 0f, 1f);
-				//	ImGui.EndMainMenuBar();
-				//}
-				if(!string.IsNullOrEmpty(errorMessage))
-				{
-					ImGui.Begin("Shader Log");
-					ImGui.TextWrapped(errorMessage);
-					ImGui.End();
-				}
-				if(showDashboardWindow && ImGui.Begin("Dashboard", ref showDashboardWindow))
-				{
-					ImGuiIOPtr io = ImGui.GetIO();
-					ImGui.SliderFloat("Font scale", ref io.FontGlobalScale, 0.2f, 2f, "%.1f");
-					//ImGui.Text("Hello, world!");
-					//ImGui.ColorEdit4("color", ref color);
-					//if (ImGui.Button("Button")) _counter++;
-					//ImGui.SameLine(0, -1);
-					//ImGui.Text($"counter = {_counter}");
-					//ImGui.DragInt("Draggable Int", ref _dragInt);
-					ImGui.End();
-				}
-				if(showStatsWindow) ShowStatsWindow(ref showStatsWindow);
-				if(showDemoWindow) ImGui.ShowDemoWindow(ref showDemoWindow);
+				ImGui.OpenPopup("pop-up");
 			}
-			ImGui.PopFont();
+			if(ImGui.BeginPopup("pop-up"))
+			{
+				if (ImGui.BeginMenu("Window"))
+				{
+					foreach (var (caption, commandBinding) in commandCaption)
+					{
+						MenuItemFromCommand(caption, commandBinding);
+					}
+
+					ImGui.MenuItem("IMGUI Demo", "", ref showDemoWindow);
+					ImGui.EndMenu();
+				}
+				ImGui.EndPopup();
+			}
+
+			if(!string.IsNullOrEmpty(MainViewModel.ErrorMessage))
+			{
+				ImGui.Begin("Shader Log");
+				ImGui.TextWrapped(MainViewModel.ErrorMessage);
+				ImGui.End();
+			}
+
+			var showDashboardWindow = MainViewModel.ShowDashboardWindow;
+			if (showDashboardWindow && ImGui.Begin("Dashboard", ref showDashboardWindow))
+			{
+				ImGuiIOPtr io = ImGui.GetIO();
+				ImGui.SliderFloat("Font scale", ref io.FontGlobalScale, 0.2f, 2f, "%.1f");
+				//ImGui.Text("Hello, world!");
+				//ImGui.ColorEdit4("color", ref color);
+				//if (ImGui.Button("Button")) _counter++;
+				//ImGui.SameLine(0, -1);
+				//ImGui.Text($"counter = {_counter}");
+				//ImGui.DragInt("Draggable Int", ref _dragInt);
+				ImGui.End();
+			}
+			MainViewModel.ShowDashboardWindow = showDashboardWindow;
+
+			var showStatsWindow = MainViewModel.ShowStatsWindow;
+			if (showStatsWindow) ShowStatsWindow(ref showStatsWindow);
+			MainViewModel.ShowStatsWindow = showStatsWindow;
+
+			if (showDemoWindow) ImGui.ShowDemoWindow(ref showDemoWindow);
 		}
 
 		void ShowStatsWindow(ref bool open)
@@ -148,29 +102,13 @@ namespace ShaderPlayer
 			ImGui.SetNextWindowBgAlpha(0.35f); // Transparent background
 			if (ImGui.Begin(" ", ref open, ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize))
 			{
-				ImGui.Text($"Viewport: {Viewport.Width}x{Viewport.Height}");
+				ImGui.Text($"View port: {Viewport.Width}x{Viewport.Height}");
 				ImGui.Text($"Mouse: {ImGui.GetMousePos()}");
 				float framerate = ImGui.GetIO().Framerate;
 				ImGui.Text($"{1000.0f / framerate:0.##} ms");
 				ImGui.Text($"{framerate:0} FPS");
 			}
 			ImGui.End();
-		}
-
-		internal void Update(float deltaTime)
-		{
-			imGuiRenderer.Update(deltaTime, input.Snapshot);
-			SubmitUI();
-		}
-
-		internal void Render(CommandList commandList)
-		{
-			imGuiRenderer.Render(graphicsDevice, commandList);
-		}
-
-		public void Dispose()
-		{
-			imGuiRenderer.Dispose();
 		}
 	}
 }

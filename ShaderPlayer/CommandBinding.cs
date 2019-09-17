@@ -3,18 +3,15 @@ using Veldrid;
 
 namespace ShaderPlayer
 {
-	class Command
+	public class CommandBinding
 	{
 		private readonly Action action;
 
-		public Command(string caption, Action action, Key? key)
+		public CommandBinding(Action action, Key? key)
 		{
 			this.action = action ?? throw new ArgumentNullException(nameof(action));
-			Caption = caption;
 			Key = key;
 		}
-
-		public string Caption { get; }
 
 		public Key? Key { get; }
 

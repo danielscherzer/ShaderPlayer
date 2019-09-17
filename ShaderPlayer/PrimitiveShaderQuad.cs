@@ -30,7 +30,7 @@ namespace ShaderPlayer
 			resourceLayout = resourceFactory.CreateResourceLayout(new ResourceLayoutDescription(layouts.ToArray()));
 
 			resourceSet = resourceFactory.CreateResourceSet(new ResourceSetDescription(resourceLayout, resources.ToArray()));
-			Load(resourceFactory, shaderCode);
+			LoadPipeline(resourceFactory, shaderCode);
 		}
 
 		public void Dispose()
@@ -55,19 +55,16 @@ namespace ShaderPlayer
 			graphicsDevice.UpdateBuffer(uniformsBuffer, 0, uniforms);
 		}
 
-		private DeviceBuffer uniformsBuffer;
-		private readonly ResourceLayout resourceLayout;
-		private Pipeline pipeline;
-		private readonly ResourceSet resourceSet;
-
-		private Framebuffer Output { get; }
-
 		private GraphicsDevice graphicsDevice;
+		private Framebuffer Output { get; }
+		private Pipeline pipeline;
+		private readonly ResourceLayout resourceLayout;
+		private readonly ResourceSet resourceSet;
+		private DeviceBuffer uniformsBuffer;
 
 		private static Shader[] LoadShader(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
 		{
 			const string vertexCode = @"#version 330
-
 				out vec2 uv;
 
 				const vec2 vertices[4] = vec2[4](
@@ -91,7 +88,7 @@ namespace ShaderPlayer
 			return new Shader[] { vertexShader, fragmentShader };
 		}
 
-		private void Load(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
+		private void LoadPipeline(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
 		{
 			var shaders = LoadShader(resourceFactory, fragmentShaderSourceCode);
 			var pipelineDesc = new GraphicsPipelineDescription()

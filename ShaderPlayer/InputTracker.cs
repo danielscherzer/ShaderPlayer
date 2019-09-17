@@ -5,7 +5,7 @@ using Veldrid.Sdl2;
 
 namespace ShaderPlayer
 {
-	public class InputTracker
+	public class InputTracker //TODO: use framework input and adapt for Veldrid
 	{
 		private HashSet<Key> _currentlyPressedKeys = new HashSet<Key>();
 		private HashSet<Key> _newKeysThisFrame = new HashSet<Key>();
@@ -16,9 +16,9 @@ namespace ShaderPlayer
 		public Vector2 MousePosition;
 		public Vector2 MouseDelta;
 
-		public bool GetKey(Key key) => _currentlyPressedKeys.Contains(key);
+		public bool IsKeyDown(Key key) => _currentlyPressedKeys.Contains(key);
 
-		public bool GetKeyDown(Key key) => _newKeysThisFrame.Contains(key);
+		public bool IsNewKeyDown(Key key) => _newKeysThisFrame.Contains(key);
 
 		public bool GetMouseButton(MouseButton button) => _currentlyPressedMouseButtons.Contains(button);
 

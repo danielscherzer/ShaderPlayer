@@ -1,7 +1,4 @@
-﻿using Jot;
-using Jot.Storage;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Runtime.InteropServices;
 using Veldrid;
 using Veldrid.StartupUtilities;
@@ -22,15 +19,9 @@ namespace ShaderPlayer
 
 			Veldrid.Sdl2.Sdl2Window window = VeldridStartup.CreateWindow(new WindowCreateInfo(200, 60, 1024, 1024, WindowState.Normal, nameof(ShaderPlayer)));
 			IoC.RegisterInstance(window);
-			var tracker = new Tracker(new JsonFileStore("./"));
-			tracker.Configure<Veldrid.Sdl2.Sdl2Window>().Id(w => nameof(ShaderPlayer))
-				.Property(w => w.X, 200)
-				.Property(w => w.Y, 60)
-				.Property(w => w.Width, 1024)
-				.Property(w => w.Height, 1024)
-				.WhenPersistingProperty((wnd, property) => property.Cancel = WindowState.Normal != wnd.WindowState)
-				.PersistOn(nameof(Veldrid.Sdl2.Sdl2Window.Closing));
-			tracker.Track(window);
+			var mainViewModel = new MainViewModel();
+
+			var tracker = Persist.CreateTracker(window, mainViewModel);
 
 			var options = new GraphicsDeviceOptions() { PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true };
 			var graphicsDevice = VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, window, GraphicsBackend.OpenGL);
@@ -41,9 +32,8 @@ namespace ShaderPlayer
 			window.Resized += () => graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
 			IoC.RegisterInstance(graphicsDevice);
 
-
-			var input = new Input();
-			var myGui = new MyGui(input);
+			var inputTracker = new InputTracker();
+			var myGui = new MyGui(mainViewModel);
 
 			var viewModel = new ShaderViewModel();
 			window.Resized += () => viewModel.Resize((uint)window.Width, (uint)window.Height);
@@ -59,41 +49,44 @@ namespace ShaderPlayer
 				fileChangeSubscription = TrackedFile.Load(shaderFileName).Subscribe(
 					fileName =>
 					{
-						//taskService.AddTask(() => myGui.ShowErrorInfo(viewModel.Load(fileName)));
-						myGui.ShowErrorInfo(viewModel.Load(fileName));
+						taskService.AddTask(() => mainViewModel.ErrorMessage = viewModel.Load(fileName));
+						//myGui.ShowErrorInfo(viewModel.Load(fileName));
 						window.Title = fileName;
 					});
 			}
 			window.DragDrop += (dropEvent) => LoadShader(dropEvent.File);
-			//LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
+			LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
 
+			var guiVisual = new GuiVisual();
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 			//IoC.RegisterInstance(commandList);
 			var time = new Time();
 			while (window.Exists)
 			{
 				time.Update();
-				input.Update(window);
-				myGui.Update(time.FrameDelta);
+				var inputSnapShot = window.PumpEvents();
+				inputTracker.UpdateFrameInput(inputSnapShot, window);
+				myGui.CommandBindings.Execute(inputTracker);
 
 				var viewport = myGui.Viewport;
-				var mousePos = input.Snapshot.MousePosition;
+				var mousePos = inputSnapShot.MousePosition;
 				mousePos.Y = viewport.Height - mousePos.Y - 1;
-				viewModel.Update(mousePos, time.Total);
 
 				commandList.Begin();
-					viewModel.Draw(commandList);
-					myGui.Render(commandList);
+					viewModel.Draw(commandList, mousePos, time.Total);
+					guiVisual.BeginDraw(time.FrameDelta, inputSnapShot);
+						myGui.Submit();
+					guiVisual.EndDraw(commandList);
 				commandList.End();
 				graphicsDevice.SubmitCommands(commandList);
 				graphicsDevice.SwapBuffers();
 				taskService.ProcessNextTask();
 			}
 
+			guiVisual.Dispose();
 			fileChangeSubscription?.Dispose();
 			graphicsDevice.WaitForIdle();
 			viewModel.Dispose();
-			myGui.Dispose();
 			commandList.Dispose();
 			graphicsDevice.Dispose();
 		}
