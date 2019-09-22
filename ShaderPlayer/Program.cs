@@ -55,7 +55,7 @@ namespace ShaderPlayer
 					});
 			}
 			window.DragDrop += (dropEvent) => LoadShader(dropEvent.File);
-			LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
+			//LoadShader(@"D:\Daten\git\SHADER\2D\PatternCircle.glsl");
 
 			var guiVisual = new GuiVisual();
 			var commandList = graphicsDevice.ResourceFactory.CreateCommandList();

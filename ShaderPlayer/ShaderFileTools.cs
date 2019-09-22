@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using GLSLhelper;
+using System.IO;
 using System.Text;
 using Veldrid;
 
@@ -29,7 +30,7 @@ namespace ShaderPlayer
 					throw new ShaderIncludeException($"Error compiling include file '{includeName}'", vex);
 				}
 			}
-			var expandedShaderCode = GlslTools.ExpandIncludes(shaderCode, GetIncludeCode);
+			var expandedShaderCode = Transformations.ExpandIncludes(shaderCode, GetIncludeCode);
 			return GlslTools.MakeConformal(expandedShaderCode);
 		}
 	}
