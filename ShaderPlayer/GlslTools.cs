@@ -36,7 +36,7 @@ namespace ShaderPlayer
 			}
 			header += "#line 1\n";
 
-			newCode = Regex.Replace(newCode, RegexPatterns.Uniform, m => string.Empty);
+			newCode = RegexPatterns.Uniform.Replace(newCode, m => string.Empty);
 			newCode = Regex.Replace(newCode, @"varying\s", m => "in ");
 			return header + newCode;
 		}

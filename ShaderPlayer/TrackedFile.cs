@@ -6,7 +6,7 @@ namespace ShaderPlayer
 {
 	internal class TrackedFile
 	{
-		internal static IObservable<string> Load(string fileName)
+		internal static IObservable<string> DelayedLoad(string fileName)
 		{
 			return CreateFileChangeSequence(fileName)
 				.Throttle(TimeSpan.FromSeconds(0.1f))

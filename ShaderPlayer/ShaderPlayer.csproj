@@ -21,14 +21,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GLSLhelper" Version="0.1.5" />
-    <PackageReference Include="Jot" Version="2.0.1" />
-    <PackageReference Include="System.Reactive" Version="4.1.5" />
-    <PackageReference Include="Unity" Version="5.11.1" />
-    <PackageReference Include="Veldrid" Version="4.7.0-g4d09d452ed" />
-    <PackageReference Include="Veldrid.ImGui" Version="5.70.0-ge32775f6a5" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.12" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="4.6.1" />
+    <PackageReference Include="GLSLhelper" Version="0.3.21" />
+    <PackageReference Include="Jot" Version="2.1.7" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
+    <PackageReference Include="Unity" Version="5.11.7" />
+    <PackageReference Include="Veldrid" Version="4.8.0" />
+    <PackageReference Include="Veldrid.ImGui" Version="5.72.0" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.13" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
   </ItemGroup>
 
 </Project>

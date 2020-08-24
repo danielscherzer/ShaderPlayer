@@ -46,7 +46,7 @@ namespace ShaderPlayer
 			void LoadShader(string shaderFileName)
 			{
 				fileChangeSubscription?.Dispose();
-				fileChangeSubscription = TrackedFile.Load(shaderFileName).Subscribe(
+				fileChangeSubscription = TrackedFile.DelayedLoad(shaderFileName).Subscribe(
 					fileName =>
 					{
 						taskService.AddTask(() => mainViewModel.ErrorMessage = viewModel.Load(fileName));
