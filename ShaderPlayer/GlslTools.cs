@@ -5,8 +5,13 @@ namespace ShaderPlayer
 {
 	public static class GlslTools
 	{
+		private static readonly Regex regexVersion = new Regex(@"^#version\s+\d+");
+
 		public static string MakeConformal(string shaderSourceCode)
 		{
+			bool containsVersion = regexVersion.IsMatch(shaderSourceCode);
+			if (containsVersion) return shaderSourceCode;
+
 			string header = string.Empty;
 			string RemoveVersion(Match match)
 			{
