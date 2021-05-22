@@ -30,7 +30,7 @@ namespace ShaderPlayer
 					throw new ShaderIncludeException($"Error compiling include file '{includeName}'", vex);
 				}
 			}
-			var expandedShaderCode = Transformations.ExpandIncludes(shaderCode, GetIncludeCode);
+			var expandedShaderCode = Transformation.ExpandIncludes(shaderCode, GetIncludeCode);
 			return GlslTools.MakeConformal(expandedShaderCode);
 		}
 	}

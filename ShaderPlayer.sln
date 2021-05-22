@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderPlayer", "ShaderPlayer\ShaderPlayer.csproj", "{E76E725E-678A-4CC7-88D9-A4323A09C173}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderPlayer", "src\ShaderPlayer.csproj", "{E76E725E-678A-4CC7-88D9-A4323A09C173}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{38983BE7-7CC4-4FDD-9DE0-5D9C96D2612A}"
 	ProjectSection(SolutionItems) = preProject
