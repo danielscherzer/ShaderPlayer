@@ -9,7 +9,7 @@ namespace ShaderPlayer
 
 		public CommandBinding(Action action, Key? key)
 		{
-			this.action = action ?? throw new ArgumentNullException(nameof(action));
+			this.action = action;
 			Key = key;
 		}
 

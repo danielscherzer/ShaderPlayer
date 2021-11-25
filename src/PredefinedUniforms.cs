@@ -15,11 +15,11 @@ namespace ShaderPlayer
 
 		public const string ResourceName = nameof(PredefinedUniforms);
 		public static readonly string ShaderString = "uniform " + ResourceName
-			+ " { vec4 iMouse;"
+			+ " { vec4 u_mouse;"
 			+ " float iCamPosX; float iCamPosY; float iCamPosZ; float paddingCamPos;"
 			+ " float iCamRotX; float iCamRotY; float iCamRotZ; float paddingCamRot;"
-			+ " vec2 iResolution;"
-			+ " float iGlobalTime; float padding; };\n"
+			+ " vec2 u_resolution;"
+			+ " float u_time; float padding; };\n"
 			+ "uniform sampler2D texInput;\n"
 			//+ "uniform texture2D texInput;\n"
 			//+ "uniform sampler samplerInput;\n"

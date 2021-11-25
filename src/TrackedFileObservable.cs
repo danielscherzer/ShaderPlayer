@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 
 namespace ShaderPlayer
 {
-	internal class TrackedFile
+	internal class TrackedFileObservable
 	{
 		internal static IObservable<string> DelayedLoad(string fileName)
 		{
@@ -18,7 +18,7 @@ namespace ShaderPlayer
 			var fullPath = Path.GetFullPath(fileName);
 			return Observable.Return(fileName).Concat(
 				Observable.Using(
-				() => new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath))
+				() => new FileSystemWatcher(Path.GetDirectoryName(fullPath) ?? fullPath, Path.GetFileName(fullPath))
 				{
 					NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime | NotifyFilters.FileName,
 					EnableRaisingEvents = true,

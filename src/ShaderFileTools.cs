@@ -12,6 +12,7 @@ namespace ShaderPlayer
 		{
 			var dir = Path.GetDirectoryName(fileName);
 			var shaderCode = File.ReadAllText(fileName);
+			if (dir is null) return shaderCode;
 			string GetIncludeCode(string includeName)
 			{
 				var includeFileName = Path.Combine(dir, includeName);

@@ -9,8 +9,8 @@ namespace ShaderPlayer
 		public ShaderViewModel()
 		{
 			var sourceCode = @"void main() {
-					vec2 uv = gl_FragCoord.xy / iResolution;
-					gl_FragColor = vec4(uv, abs(sin(iGlobalTime)), 1.0);
+					vec2 uv = gl_FragCoord.xy / u_resolution;
+					gl_FragColor = vec4(uv, abs(sin(u_time)), 1.0);
 				}";
 			sourceCode = GlslTools.MakeConformal(sourceCode);
 
@@ -52,7 +52,7 @@ namespace ShaderPlayer
 			}
 			catch (ShaderIncludeException siex)
 			{
-				return $"{siex.Message} with\n{siex.InnerException.Message}";
+				return $"{siex.Message} with\n{siex.InnerException?.Message}";
 			}
 			catch (VeldridException vex)
 			{

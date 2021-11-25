@@ -7,7 +7,7 @@ namespace ShaderPlayer
 {
 	internal class PrimitiveShaderQuad : IDisposable
 	{
-		public PrimitiveShaderQuad(TextureView inputTextureView, string shaderCode, Framebuffer output)
+		public PrimitiveShaderQuad(TextureView? inputTextureView, string shaderCode, Framebuffer output)
 		{
 			Output = output ?? throw new ArgumentNullException(nameof(output));
 
@@ -16,9 +16,11 @@ namespace ShaderPlayer
 
 			uniformsBuffer = resourceFactory.CreateBuffer(new BufferDescription(PredefinedUniforms.SizeInBytes, BufferUsage.UniformBuffer));
 
-			List<ResourceLayoutElementDescription> layouts = new List<ResourceLayoutElementDescription>
-				{ new ResourceLayoutElementDescription(PredefinedUniforms.ResourceName, ResourceKind.UniformBuffer, ShaderStages.Fragment) };
-			List<BindableResource> resources = new List<BindableResource> { uniformsBuffer };
+			List<ResourceLayoutElementDescription> layouts = new() 
+			{ 
+				new ResourceLayoutElementDescription(PredefinedUniforms.ResourceName, ResourceKind.UniformBuffer, ShaderStages.Fragment) 
+			};
+			List<BindableResource> resources = new() { uniformsBuffer };
 			if(inputTextureView != null)
 			{
 				layouts.Add(new ResourceLayoutElementDescription("inputTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment));
@@ -30,7 +32,7 @@ namespace ShaderPlayer
 			resourceLayout = resourceFactory.CreateResourceLayout(new ResourceLayoutDescription(layouts.ToArray()));
 
 			resourceSet = resourceFactory.CreateResourceSet(new ResourceSetDescription(resourceLayout, resources.ToArray()));
-			LoadPipeline(resourceFactory, shaderCode);
+			pipeline = CreatePipeline(resourceFactory, shaderCode);
 		}
 
 		public void Dispose()
@@ -55,12 +57,12 @@ namespace ShaderPlayer
 			graphicsDevice.UpdateBuffer(uniformsBuffer, 0, uniforms);
 		}
 
-		private GraphicsDevice graphicsDevice;
+		private readonly GraphicsDevice graphicsDevice;
 		private Framebuffer Output { get; }
-		private Pipeline pipeline;
+		private readonly Pipeline pipeline;
 		private readonly ResourceLayout resourceLayout;
 		private readonly ResourceSet resourceSet;
-		private DeviceBuffer uniformsBuffer;
+		private readonly DeviceBuffer uniformsBuffer;
 
 		private static Shader[] LoadShader(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
 		{
@@ -88,7 +90,7 @@ namespace ShaderPlayer
 			return new Shader[] { vertexShader, fragmentShader };
 		}
 
-		private void LoadPipeline(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
+		private Pipeline CreatePipeline(ResourceFactory resourceFactory, string fragmentShaderSourceCode)
 		{
 			var shaders = LoadShader(resourceFactory, fragmentShaderSourceCode);
 			var pipelineDesc = new GraphicsPipelineDescription()
@@ -100,12 +102,12 @@ namespace ShaderPlayer
 				ResourceLayouts = new ResourceLayout[] { resourceLayout },
 				ShaderSet = new ShaderSetDescription()
 				{
-					VertexLayouts = new VertexLayoutDescription[] { },
+					VertexLayouts = Array.Empty<VertexLayoutDescription>(),
 					Shaders = shaders
 				},
 				Outputs = Output.OutputDescription
 			};
-			pipeline = resourceFactory.CreateGraphicsPipeline(pipelineDesc);
+			return resourceFactory.CreateGraphicsPipeline(pipelineDesc);
 		}
 	}
 }

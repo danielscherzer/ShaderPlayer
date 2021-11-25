@@ -7,9 +7,9 @@ namespace ShaderPlayer
 	{
 		public static void Execute(this IEnumerable<CommandBinding> commands, InputTracker inputTracker)
 		{
-			foreach (var command in commands.Where(command => command.Key.HasValue))
+			foreach (var command in commands)
 			{
-				if (inputTracker.IsNewKeyDown(command.Key.Value))
+				if (command.Key.HasValue && inputTracker.IsNewKeyDown(command.Key.Value))
 				{
 					command.Execute();
 				}

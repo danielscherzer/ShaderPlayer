@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="GLSLhelper" Version="0.3.52" />
-    <PackageReference Include="Jot" Version="2.1.8" />
+    <PackageReference Include="Jot" Version="2.1.11" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="Unity" Version="5.11.10" />
     <PackageReference Include="Veldrid" Version="4.8.0" />

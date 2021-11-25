@@ -41,12 +41,12 @@ namespace ShaderPlayer
 			var taskService = new TaskService();
 			IoC.RegisterInstance(taskService);
 
-			IDisposable fileChangeSubscription = null;
+			IDisposable? fileChangeSubscription = null;
 
 			void LoadShader(string shaderFileName)
 			{
 				fileChangeSubscription?.Dispose();
-				fileChangeSubscription = TrackedFile.DelayedLoad(shaderFileName).Subscribe(
+				fileChangeSubscription = TrackedFileObservable.DelayedLoad(shaderFileName).Subscribe(
 					fileName =>
 					{
 						taskService.AddTask(() => mainViewModel.ErrorMessage = viewModel.Load(fileName));

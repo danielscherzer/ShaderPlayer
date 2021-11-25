@@ -37,7 +37,7 @@ namespace ShaderPlayer
 
 		internal void Update(Vector2 mousePos, float time)
 		{
-			PredefinedUniforms uniforms = new PredefinedUniforms { Mouse = new Vector4(mousePos, 0f, 0f), Time = time, Resolution = new Vector2(renderSurface.FrameBuffer.Width, renderSurface.FrameBuffer.Height) };
+			PredefinedUniforms uniforms = new() { Mouse = new Vector4(mousePos, 0f, 0f), Time = time, Resolution = new Vector2(renderSurface.FrameBuffer.Width, renderSurface.FrameBuffer.Height) };
 			shaderQuad.Update(uniforms);
 			uniforms.Resolution = new Vector2(graphicsDevice.SwapchainFramebuffer.Width, graphicsDevice.SwapchainFramebuffer.Height);
 			shaderQuadCopy.Update(uniforms);
